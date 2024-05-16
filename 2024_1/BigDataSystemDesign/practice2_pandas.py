@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-link = "C:/Users/skfo9/Downloads/titanic/titanic.csv"
+link = "C:/Users//Downloads/titanic/titanic.csv"
 
 titanic_df = pd.read_csv(link)
 # print(titanic_df)
