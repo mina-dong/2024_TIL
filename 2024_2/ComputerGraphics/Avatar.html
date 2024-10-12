@@ -1,0 +1,248 @@
+  <!DOCTYPE html>
+  <html lang="ko">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>컴퓨터그래픽스</title>
+  </head>
+  <body>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+      <script>
+          // 장면, 카메라, 렌더러 설정
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+          const renderer = new THREE.WebGLRenderer();
+
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          document.body.appendChild(renderer.domElement);
+          scene.background = new THREE.Color(0xf5fbfd);
+
+          // 사람 만들기 함수
+          function createPerson() {
+              const person = new THREE.Group();
+
+              //1. 머리 생성
+              const headGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+              const headMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 });
+              const head = new THREE.Mesh(headGeometry, headMaterial);
+              head.position.y = 1.5; // 머리 높이 위치
+
+              //1-1 눈생성
+              const eyeGeometry = new THREE.SphereGeometry(0.1,32,32);
+              const eyeMeterial = new THREE.MeshBasicMaterial({color:0x000000});
+              const leftEye = new THREE.Mesh(eyeGeometry,eyeMeterial);
+              const rightEye = new THREE.Mesh(eyeGeometry,eyeMeterial);
+              leftEye.position.set(-0.15, -0.1, 0.4);
+              rightEye.position.set(0.15, -0.1, 0.4);
+
+              //1-2 코생성
+              const noseGeometry = new THREE.ConeGeometry(0.08, 0.17, 32);
+              const noseMaterial = new THREE.MeshBasicMaterial({ color: 0xfcba78 });
+              const nose = new THREE.Mesh(noseGeometry, noseMaterial);
+              nose.rotation.x = Math.PI / 1.8; // 코를 앞쪽으로 돌림
+              nose.position.set(0, -0.25, 0.5); // 코 위치
+
+              //1-3 입
+              const mouthGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0, 32);
+              const mouthMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+              const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+              mouth.rotation.z = Math.PI / 2; 
+              mouth.rotation.x = Math.PI / 4; 
+              mouth.rotation.y = Math.PI / 2; 
+              mouth.position.set(0, -0.4, 0.28); // 입 위치
+
+              //1-4 귀 
+              const earGeometry = new THREE.SphereGeometry(0.14, 32, 32);
+              const earMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 });
+              const leftEar = new THREE.Mesh(earGeometry, earMaterial);
+              const rightEar = new THREE.Mesh(earGeometry, earMaterial);
+              rightEar.position.set(0.45, 0, 0); // 오른쪽 귀 위치
+              leftEar.position.set(-0.45, 0, 0); // 왼쪽 귀 위치
+
+              // 1-4-1 귀걸이 생성
+              const earringGeometry = new THREE.TorusGeometry(0.07, 0.015, 16, 100); // (반지름, 두께, 세그먼트, 원주 분할)
+              const earringMaterial = new THREE.MeshBasicMaterial({ color: 0xffd700 });
+              const leftEarring = new THREE.Mesh(earringGeometry, earringMaterial);
+              const rightEarring = new THREE.Mesh(earringGeometry, earringMaterial);
+              leftEarring.position.set(-0.1, -0.15, 0); // 왼쪽 귀걸이 위치
+              rightEarring.position.set(0.1, -0.15, 0); // 오른쪽 귀걸이 위치
+
+              leftEar.add(leftEarring);
+              rightEar.add(rightEarring);
+
+              //1-5 목생성
+              const neckGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.4, 32);
+              const neckMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 });
+              const neck = new THREE.Mesh(neckGeometry, neckMaterial);
+              neck.position.set(0, -0.5, 0); // 머리 높이보다 약간 아래에 목 위치
+
+              person.add(head);
+              head.add(leftEye);
+              head.add(rightEye);
+              head.add(nose);
+              head.add(mouth);
+              head.add(leftEar);
+              head.add(rightEar);
+              head.add(neck);
+
+
+              // 2. 상반신생성
+              const torosoGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1.5, 32);
+              const torosoMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+              const toroso = new THREE.Mesh(torosoGeometry, torosoMaterial);
+
+              person.add(toroso);
+
+              // 2-1. 팔 생성
+              const armGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1, 32);
+              const armMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 });
+              const leftUpperArm = new THREE.Mesh(armGeometry, armMaterial);
+              const leftForeArm = new THREE.Mesh(armGeometry, armMaterial);
+
+              leftUpperArm.position.set(-1, 0.5, 0); 
+              leftForeArm.position.set(0.37, 0.61, 0);
+              leftUpperArm.rotation.z = Math.PI / 2; 
+              leftForeArm.rotation.z = -Math.PI / 3;
+
+              toroso.add(leftUpperArm);
+              leftUpperArm.add(leftForeArm);
+
+
+              const rightUpperArm = new THREE.Mesh(armGeometry, armMaterial);
+              const rightForeArm = new THREE.Mesh(armGeometry, armMaterial);
+              rightUpperArm.position.set(0.5, 0.3, 0); 
+              rightForeArm.position.set(0.37, -0.2, 0);
+              rightUpperArm.rotation.z = Math.PI / 6; 
+              rightForeArm.rotation.z = -Math.PI / 3; 
+
+              toroso.add(rightUpperArm);
+              rightUpperArm.add(rightForeArm);
+
+
+              //2-2. 손 생성
+              const handGeometry = new THREE.SphereGeometry(0.23, 32, 32); // 손은 작은 구체로 생성
+              const handMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 }); 
+              const leftHand = new THREE.Mesh(handGeometry, handMaterial);
+              const rightHand = new THREE.Mesh(handGeometry, handMaterial);
+              leftHand.position.set(0, 0.5, 0); // 왼쪽 손 위치
+              rightHand.position.set(0, 0.5, 0); // 오른쪽 손 위치
+
+              leftForeArm.add(leftHand);
+              rightForeArm.add(rightHand);
+
+              //2-3. 손가락 생성
+              const fingerGeometry = new THREE.CylinderGeometry(0.02, 0.05, 0.34, 32); // 손가락 원기둥
+              const fingerMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 });
+
+              for (let i = 0; i < 5 ; i++) {
+                  const leftFinger = new THREE.Mesh(fingerGeometry, fingerMaterial);
+                  const rightFinger = new THREE.Mesh(fingerGeometry, fingerMaterial);
+
+                  // 손가락 위치
+                  leftFinger.position.set(-0.2 + i * 0.1, 0.15, 0); // 왼쪽 손가락(x, 간격,x,x)
+                  rightFinger.position.set(-0.2 + i * 0.1, 0.15, 0); // 오른쪽 손가락
+
+                  // 손가락을 각 손에 추가
+                  leftHand.add(leftFinger);
+                  rightHand.add(rightFinger);
+              }
+
+
+              //3. 하반신 생성
+              const waistGeometry = new THREE.CylinderGeometry(0.6, 0.6, 0.5, 32);
+              const waistMaterial = new THREE.MeshBasicMaterial({ color: 0x00eefe });
+              const waist = new THREE.Mesh(waistGeometry, waistMaterial);
+              waist.position.y = -0.8; 
+
+
+              // 3-1 다리 생성
+              const legGeometry = new THREE.CylinderGeometry(0.18, 0.18, 1, 32);
+              const legMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 });
+              const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+              const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+              const leftthighs = new THREE.Mesh(legGeometry, legMaterial);
+              const rightthighs = new THREE.Mesh(legGeometry, legMaterial);
+
+              leftthighs.position.set(-0.35, -0.7, 0); 
+              rightthighs.position.set(0.5, -0.5, 0);
+              rightthighs.rotation.z = Math.PI / 6; 
+
+              leftLeg.position.set(0, -1, 0); // 왼쪽 다리 위치
+              rightLeg.position.set(0.35, -0.45, 0); // 오른쪽 다리 위치
+              rightLeg.rotation.x = Math.PI / 2; 
+              rightLeg.rotation.z = Math.PI / 2; 
+
+
+              waist.add(leftthighs);
+              waist.add(rightthighs);
+
+              leftthighs.add(leftLeg);
+              rightthighs.add(rightLeg);
+
+              // 3-2. 발 생성
+              const footGeometry = new THREE.BoxGeometry(0.34, 0.1, 0.54); // 발은 박스 형태
+              const footMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 }); // 발 색상(갈색)
+              const leftFoot = new THREE.Mesh(footGeometry, footMaterial);
+              const rightFoot = new THREE.Mesh(footGeometry, footMaterial);
+
+              leftFoot.rotation.y = -Math.PI/4;
+              rightFoot.rotation.y = Math.PI/4;
+
+              // 발 위치
+              leftFoot.position.set(-0.1, -0.5, 0.08); // 왼발 위치
+              rightFoot.position.set(0.1, -0.5, 0.08); // 오른발 위치
+
+              leftLeg.add(leftFoot);
+              rightLeg.add(rightFoot);
+
+              // 3-3. 발가락 생성
+              const toeGeometry = new THREE.CylinderGeometry(0.02, 0.03, 0.15, 32); // 발가락 원기둥
+              const toeMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc99 });
+
+              for (let i = 0; i < 5; i++) {
+                  const leftToe = new THREE.Mesh(toeGeometry, toeMaterial);
+                  const rightToe = new THREE.Mesh(toeGeometry, toeMaterial);
+
+                  // 발가락 X축으로 90도 회전
+                  leftToe.rotation.x = Math.PI / 2;
+                  rightToe.rotation.x = Math.PI / 2;
+                  // 발가락 위치 설정
+                  leftToe.position.set(-0.15 + i * 0.08, 0, 0.34); // 왼발가락
+                  rightToe.position.set(-0.15 + i * 0.08, 0, 0.34); // 오른발가락
+
+                  // 발에 발가락 추가
+                  leftFoot.add(leftToe);
+                  rightFoot.add(rightToe);
+              }
+
+              //하반신 구성요소 추가
+              person.add(waist);
+
+
+              return person;
+          }
+
+          // 사람 생성 및 씬에 추가
+          const person = createPerson();
+          scene.add(person);
+
+          camera.position.z = 5;
+
+          // 애니메이션 루프
+          function animate() {
+              requestAnimationFrame(animate);
+              person.rotation.y += 0.01;
+              renderer.render(scene, camera);
+          }
+
+          animate();
+
+          // 윈도우 크기 조절 시 렌더러 크기 조정
+          window.addEventListener('resize', () => {
+              camera.aspect = window.innerWidth / window.innerHeight;
+              camera.updateProjectionMatrix();
+              renderer.setSize(window.innerWidth, window.innerHeight);
+          });
+      </script>
+  </body>
+  </html>
